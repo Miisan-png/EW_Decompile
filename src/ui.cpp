@@ -211,6 +211,7 @@ namespace Ui {
     }
 
     Package::Package package;
+    static bool showPngOnly = false;  // Filter toggle state
 
     void OpenPackage() {
         auto fileDialogResult = Dialog::OpenFile({{"Eastward Package", "g"}});
@@ -352,15 +353,50 @@ namespace Ui {
             if (ImGui::Button("\uede9 Extract all")) {
                 ExtractAllEntries();
             }
+
+            // Add PNG filter toggle
+            ImGui::SameLine();
+            ImGui::Separator();
+            ImGui::SameLine();
+            if (ImGui::Checkbox("PNG Only", &showPngOnly)) {
+                // Filter state changed
+            }
         }
+    }
+
+    // Helper function to check if entry should be displayed
+    bool ShouldDisplayEntry(const Package::Entry &entry) {
+        if (!showPngOnly) {
+            return true; // Show all entries when filter is off
+        }
+        
+        // Show only PNG and HMG images when filter is on
+        return entry.Type == Package::EntryType::ImagePng || 
+               entry.Type == Package::EntryType::ImageHmg;
     }
 
     void RenderEntryList() {
         ImGui::Begin("Entries##EntryList");
 
+        int pngCounter = 1; // Counter for PNG files
+        
         for (auto &e: package.Entries) {
-            if (ImGui::Selectable(fmt::format("{} {}", GetEntryTypeIcon(e.Type), e.Information.Name).c_str(),
-                    e.Opened)) {
+            if (!ShouldDisplayEntry(e)) {
+                continue; // Skip entries that don't match filter
+            }
+
+            std::string displayName;
+            
+            if (showPngOnly && (e.Type == Package::EntryType::ImagePng || e.Type == Package::EntryType::ImageHmg)) {
+                // Show numbered name when filtering PNGs
+                displayName = fmt::format("{} {}", GetEntryTypeIcon(e.Type), pngCounter);
+                pngCounter++;
+            } else {
+                // Show original name when not filtering
+                displayName = fmt::format("{} {}", GetEntryTypeIcon(e.Type), e.Information.Name);
+            }
+
+            if (ImGui::Selectable(displayName.c_str(), e.Opened)) {
                 e.Opened = true;
                 e.Selected = true;
             }
