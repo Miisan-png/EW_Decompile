@@ -8,7 +8,7 @@ A **custom enhanced fork** of the original [EWPackageTools](https://github.com/t
 - **Windows Build Support**: Full Windows compilation support with Visual Studio
 
 ## Screenshots
-![ewtools](https://user-images.githubusercontent.com/90976311/143503141-a6ccfcb1-15f5-4c96-9fba-020e4113c424.png)
+![ewtools](rep/ss.png)
 
 ## Build Instructions
 
